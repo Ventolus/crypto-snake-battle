@@ -1,91 +1,423 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="no">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Snake Battle 🐍💰 | Base Network</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Crypto Snake Battle 🐍💰 | Base Network</title>
+  <style>
+    :root{
+      --bg1:#0b1220; --bg2:#0e1a33; --panel:#121a2a; --accent:#2b6ef6; --text:#eaf2ff;
+      --grid:22;
+      --cell:24px;
+      --gap:2px;
+    }
+    *{box-sizing:border-box; margin:0; padding:0}
+    body{
+      font-family:system-ui,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background: radial-gradient(1200px 600px at 70% -10%, #1e2a4d 0%, #0b1220 50%), linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px;
+    }
+    .wrap{
+      display:grid; gap:16px; grid-template-columns: 1fr;
+      max-width: min(100%, calc(var(--grid)*var(--cell) + 48px));
+      width:100%;
+    }
+    .base-banner{
+      background:linear-gradient(90deg, #0052FF 0%, #0066FF 100%);
+      color:white; padding:15px; text-align:center; display:flex; justify-content:space-between;
+      align-items:center; border-radius:10px; box-shadow:0 4px 15px rgba(0,82,255,0.3);
+    }
+    .base-banner span{font-weight:bold; font-size:1.1em}
+    .wallet-btn{
+      background:white; color:#0052FF; border:none; padding:10px 20px; border-radius:20px;
+      font-weight:bold; cursor:pointer; transition:all 0.3s;
+    }
+    .wallet-btn:hover{transform:scale(1.05); box-shadow:0 4px 15px rgba(255,255,255,0.3)}
+    .wallet-btn.connected{background:#10b981; color:white}
+    .hud{
+      background:linear-gradient(180deg,#122040,#0f1730); border:1px solid #1e2a4d; border-radius:16px; padding:12px 14px;
+      display:flex; align-items:center; justify-content:space-between; box-shadow:0 10px 30px rgba(0,0,0,.35);
+      flex-wrap:wrap; gap:12px;
+    }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.3px}
+    .brand .dot{width:10px;height:10px;border-radius:50%;background:#2b6ef6; box-shadow:0 0 12px #2b6ef6}
+    .badges{display:flex; gap:8px; flex-wrap:wrap}
+    .badge{
+      background:#0d1530; border:1px solid #22305a; border-radius:10px; padding:6px 10px; font-size:13px; opacity:.95;
+    }
+    .controls{display:flex; gap:8px; flex-wrap:wrap}
+    .btn{
+      background:linear-gradient(180deg,#1a2a60,#13214a);
+      border:1px solid #2b6ef6; color:var(--text); padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:600;
+      transition:transform .06s ease, filter .2s ease; font-size:14px;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn:hover{filter:brightness(1.1)}
+    .btn.secondary{border-color:#2b6ef655; background:#121a2a}
+    .grid-wrap{
+      background:#0c1426; border:1px solid #1e2a4d; border-radius:16px; padding:12px;
+      box-shadow: inset 0 0 0 1px #0a1230, 0 10px 30px rgba(0,0,0,.35);
+    }
+    .grid{
+      position:relative; touch-action:none; user-select:none;
+      width: calc(var(--grid)*(var(--cell) + var(--gap)));
+      height: calc(var(--grid)*(var(--cell) + var(--gap)));
+      display:grid; grid-template-columns: repeat(var(--grid), var(--cell)); 
+      grid-template-rows: repeat(var(--grid), var(--cell));
+      gap: var(--gap);
+      margin:auto; 
+      background:#0a0f1e;
+      border-radius:10px; overflow:hidden;
+    }
+    .cell{
+      width:var(--cell); height:var(--cell); border-radius:4px;
+      background:rgba(255,255,255,0.02);
+    }
+    .snake{background:linear-gradient(180deg,#5aa3ff,#2b6ef6); box-shadow: 0 0 10px rgba(43,110,246,.6)}
+    .snake.head{background:linear-gradient(180deg,#9dc0ff,#3d7cff); outline:1px solid #a8c6ff55}
+    .coin{
+      display:grid; place-items:center; font-size:16px; font-weight:bold;
+      background:linear-gradient(180deg,#24335e,#162044);
+      border:1px solid #3953a6; box-shadow: inset 0 0 8px rgba(255,255,255,.1);
+    }
+    .overlay{
+      position:absolute; inset:0; display:none; place-items:center; 
+      background:rgba(6,10,20,.75); backdrop-filter: blur(4px); z-index:10;
+    }
+    .overlay.show{display:grid}
+    .card{
+      background:#0e1832; border:1px solid #22305a; border-radius:16px; padding:24px; 
+      width:min(92vw, 420px); text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.45);
+    }
+    .title{font-size:24px; font-weight:800; letter-spacing:.3px; margin:0 0 12px}
+    .muted{color:#b9c8ffcc; font-size:14px; margin:0 0 16px; line-height:1.5}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; 
+      background:#0a1230; border:1px solid #213165; padding:3px 8px; border-radius:6px;
+      font-size:13px;
+    }
+    .legend{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:12px 0}
+    .legend .badge{background:#0c1430; border-color:#2b3f8a; font-size:13px}
+    .foot{font-size:12px; color:#9fb1ffaa; margin-top:12px; line-height:1.4}
+    .wallet-info{
+      background:linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color:white; padding:12px; border-radius:10px; margin-bottom:16px; text-align:center;
+      font-size:13px; display:none;
+    }
+    .wallet-info p{margin:4px 0; font-weight:600}
+    @media (max-width:680px){
+      :root{--grid:18; --cell:22px}
+      .badge{font-size:12px; padding:5px 8px}
+      .btn{padding:7px 10px; font-size:13px}
+      .hud{padding:10px}
+      .title{font-size:20px}
+    }
+  </style>
 </head>
 <body>
+  <div class="wrap">
     <div class="base-banner">
-        <span>🔵 Powered by Base Network</span>
-        <button id="connectWallet" class="wallet-btn">Connect Wallet</button>
+      <span>🔵 Powered by Base Network</span>
+      <button id="connectWallet" class="wallet-btn">Connect Wallet</button>
     </div>
-    
-    <div class="container">
-        <h1>🐍 Crypto Snake Battle 💰</h1>
-        <p class="subtitle">Play-to-Earn Snake Game on Base Network</p>
-        
-        <div class="wallet-info" id="walletInfo" style="display: none;">
-            <p>Connected: <span id="walletAddress"></span></p>
-            <p>Network: <span id="networkName">Base Sepolia</span></p>
-            <p>$SNAKE Balance: <span id="snakeBalance">0</span> | NFTs: <span id="nftBalance">0</span></p>
-            <p>Daily Allowance: <span id="dailyAllowance">2000</span> SNAKE remaining</p>
-        </div>
-        
-        <div id="statusMessage" class="status-message" style="display: none;"></div>
-        
-        <div class="game-info">
-            <div class="player-info">
-                <h3>🎮 Your Score</h3>
-                <p>Points: <span id="score">0</span></p>
-                <p>Crypto Value: $<span id="crypto">0</span></p>
-            </div>
-        </div>
-        
-        <canvas id="gameCanvas" width="600" height="600"></canvas>
-        
-        <div class="controls">
-            <button id="startBtn" class="btn btn-start">Start Game</button>
-            <button id="pauseBtn" class="btn btn-pause">Pause</button>
-            <button id="resetBtn" class="btn btn-reset">Reset</button>
-        </div>
-        
-        <div class="claim-section" id="claimSection" style="display: none;">
-            <h3>🎉 Game Over!</h3>
-            <p>Final Score: <span id="finalScore">0</span></p>
-            <p>Estimated Reward: <span id="estimatedReward">0</span> SNAKE</p>
-            <button id="claimBtn" class="btn btn-claim">Submit Score & Claim Rewards</button>
-        </div>
-        
-        <div class="instructions">
-            <h3>📖 How to Play:</h3>
-            <p><strong>Controls:</strong> Arrow keys or WASD to move</p>
-            <p>🪙 Collect crypto coins to grow and earn points!</p>
-            <p>💎 Different coins have different values!</p>
-            <p>⚠️ Don't hit walls or yourself!</p>
-            <p>💰 <strong>Submit your score after game to earn $SNAKE tokens!</strong></p>
-            <p>🚀 <strong>Game speeds up as you score more points!</strong></p>
-        </div>
-        
-        <div class="crypto-info">
-            <h3>💰 Crypto Coins:</h3>
-            <div class="coin-list">
-                <div class="coin"><span class="coin-symbol btc">₿</span> Bitcoin - $100</div>
-                <div class="coin"><span class="coin-symbol eth">Ξ</span> Ethereum - $50</div>
-                <div class="coin"><span class="coin-symbol sol">S</span> Solana - $40</div>
-                <div class="coin"><span class="coin-symbol bnb">B</span> Binance - $30</div>
-                <div class="coin"><span class="coin-symbol doge">Ð</span> Dogecoin - $20</div>
-            </div>
-        </div>
-        
-        <div class="quick-links">
-            <h3>🔗 Quick Links:</h3>
-            <div class="links">
-                <a href="mint.html" class="link-btn">🎨 Mint Genesis NFT</a>
-                <a href="leaderboard.html" class="link-btn">🏆 Leaderboard</a>
-                <a href="https://github.com/Ventolus/crypto-snake-battle" target="_blank" class="link-btn">💻 GitHub</a>
-            </div>
-        </div>
-        
-        <footer>
-            <p>Built on <strong>Base Network</strong> 🔵 | Open Source on <a href="https://github.com/Ventolus/crypto-snake-battle" target="_blank">GitHub</a></p>
-            <p>Made with ❤️ using <a href="https://bhindi.io" target="_blank">Bhindi</a></p>
-        </footer>
+
+    <div class="wallet-info" id="walletInfo">
+      <p>Connected: <span id="walletAddress"></span></p>
+      <p>$SNAKE: <span id="snakeBalance">0</span> | NFTs: <span id="nftBalance">0</span> | Daily: <span id="dailyAllowance">2000</span></p>
     </div>
+
+    <div class="hud">
+      <div class="brand"><span class="dot"></span> Crypto Snake</div>
+      <div class="badges">
+        <div class="badge">Poeng: <span id="score">0</span></div>
+        <div class="badge">Highscore: <span id="hi">0</span></div>
+        <div class="badge">Fart: <span id="speed">1.00x</span></div>
+      </div>
+      <div class="controls">
+        <button id="btnPause" class="btn secondary">Pause</button>
+        <button id="btnRestart" class="btn">Restart</button>
+      </div>
+    </div>
+
+    <div class="grid-wrap">
+      <div id="grid" class="grid" tabindex="0"></div>
+      <div id="overlay" class="overlay">
+        <div class="card">
+          <h2 class="title" id="ovTitle">Klar til å spille?</h2>
+          <p class="muted" id="ovDesc">
+            Styr med <span class="kbd">WASD</span> eller <span class="kbd">Piltaster</span><br>
+            Pause: <span class="kbd">Space</span> • Restart: <span class="kbd">R</span>
+          </p>
+          <div class="legend" id="legend"></div>
+          <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap">
+            <button class="btn" id="btnStart">Start Spill</button>
+            <button class="btn secondary" id="btnClose">Lukk</button>
+          </div>
+          <div class="foot">💡 Samle crypto coins for poeng. Unngå vegger og din egen hale!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+  <script type="module" src="wallet.js"></script>
+  <script>
+    // ========== CONFIG ==========
+    const GRID_SIZE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--grid')) || 22;
+    const STEP_BASE_MS = 120;
+    const SPEED_UP_EVERY = 200;
+    const SPEED_MULT_DELTA = 0.06;
+    const START_LEN = 4;
+
+    const COINS = [
+      { key:'BTC', emoji:'₿', value:100 },
+      { key:'ETH', emoji:'Ξ', value: 50 },
+      { key:'SOL', emoji:'S', value: 40 },
+      { key:'BNB', emoji:'B', value: 30 },
+      { key:'DOGE',emoji:'Ð', value: 20 },
+    ];
+
+    // ========== DOM ==========
+    const gridEl = document.getElementById('grid');
+    const scoreEl = document.getElementById('score');
+    const hiEl = document.getElementById('hi');
+    const speedEl = document.getElementById('speed');
+    const overlay = document.getElementById('overlay');
+    const ovTitle = document.getElementById('ovTitle');
+    const ovDesc = document.getElementById('ovDesc');
+    const legendEl = document.getElementById('legend');
+    const btnStart = document.getElementById('btnStart');
+    const btnClose = document.getElementById('btnClose');
+    const btnPause = document.getElementById('btnPause');
+    const btnRestart = document.getElementById('btnRestart');
+
+    // Legend
+    legendEl.innerHTML = COINS.map(c => `<span class="badge">${c.emoji} ${c.key} = ${c.value}</span>`).join('');
+
+    // Build grid
+    const cells = [];
+    for(let i=0; i<GRID_SIZE*GRID_SIZE; i++){
+      const div = document.createElement('div');
+      div.className = 'cell';
+      gridEl.appendChild(div);
+      cells.push(div);
+    }
+    function idx(x,y){ return y*GRID_SIZE + x }
+
+    // ========== STATE ==========
+    let snake = [];
+    let dir = {x:1, y:0};
+    let nextDir = {x:1, y:0};
+    let coin = null;
+    let score = 0;
+    let hiscore = Number(localStorage.getItem('crypto-snake-hiscore')||0);
+    hiEl.textContent = hiscore;
+    let stepMs = STEP_BASE_MS;
+    let speedMult = 1;
+    let running = false;
+    let paused = false;
+    let lastTime = 0;
+    let acc = 0;
+
+    // ========== GAME LOGIC ==========
+    function resetGame(){
+      clearGrid();
+      score = 0; 
+      scoreEl.textContent = score;
+      speedMult = 1; 
+      stepMs = STEP_BASE_MS; 
+      speedEl.textContent = speedMult.toFixed(2)+'x';
+      dir = {x:1, y:0}; 
+      nextDir = {x:1, y:0};
+      
+      const cx = Math.floor(GRID_SIZE/3);
+      const cy = Math.floor(GRID_SIZE/2);
+      snake = [];
+      for(let i=START_LEN-1; i>=0; i--){
+        snake.push({x:cx-i, y:cy});
+      }
+      placeCoin();
+      drawAll();
+    }
+
+    function clearGrid(){
+      cells.forEach(c => {
+        c.className = 'cell';
+        c.textContent = '';
+      });
+    }
+
+    function drawAll(){
+      clearGrid();
+      
+      // Draw coin
+      if(coin){
+        const c = cells[idx(coin.x, coin.y)];
+        c.classList.add('coin');
+        c.textContent = COINS[coin.type].emoji;
+      }
+      
+      // Draw snake
+      snake.forEach((seg, i) => {
+        const d = cells[idx(seg.x, seg.y)];
+        d.classList.add('snake');
+        if(i === 0) d.classList.add('head');
+      });
+    }
+
+    function placeCoin(){
+      const empty = [];
+      for(let y=0; y<GRID_SIZE; y++){
+        for(let x=0; x<GRID_SIZE; x++){
+          if(!snake.some(s => s.x===x && s.y===y)){
+            empty.push({x, y});
+          }
+        }
+      }
+      if(!empty.length) return;
+      const spot = empty[Math.floor(Math.random()*empty.length)];
+      const type = Math.floor(Math.random()*COINS.length);
+      coin = {x:spot.x, y:spot.y, type};
+    }
+
+    function loop(ts){
+      if(!running) return;
+      const dt = ts - lastTime; 
+      lastTime = ts;
+      
+      if(!paused){
+        acc += dt;
+        if(acc >= stepMs){
+          step();
+          acc = acc % stepMs;
+        }
+      }
+      requestAnimationFrame(loop);
+    }
+
+    function step(){
+      dir = nextDir;
+      
+      const head = snake[0];
+      const nx = head.x + dir.x;
+      const ny = head.y + dir.y;
+      
+      // Wall collision
+      if(nx<0 || ny<0 || nx>=GRID_SIZE || ny>=GRID_SIZE){
+        return gameOver('Du traff veggen! 💥');
+      }
+      
+      // Self collision
+      if(snake.some((s,i) => i>0 && s.x===nx && s.y===ny)){
+        return gameOver('Du traff din egen hale! 🐍');
+      }
+      
+      snake.unshift({x:nx, y:ny});
+      
+      // Coin collection
+      if(coin && nx===coin.x && ny===coin.y){
+        const val = COINS[coin.type].value;
+        score += val; 
+        scoreEl.textContent = score;
+        
+        // Speed up
+        if(score && score % SPEED_UP_EVERY === 0){
+          speedMult = Math.min(2.5, speedMult + SPEED_MULT_DELTA);
+          stepMs = Math.max(45, STEP_BASE_MS / speedMult);
+          speedEl.textContent = speedMult.toFixed(2)+'x';
+        }
+        placeCoin();
+      } else {
+        snake.pop();
+      }
+      
+      drawAll();
+    }
+
+    function gameOver(reason){
+      running = false;
+      paused = false;
+      overlay.classList.add('show');
+      ovTitle.textContent = 'Game Over!';
+      
+      const hi = Math.max(hiscore, score);
+      if(hi !== hiscore){ 
+        hiscore = hi; 
+        localStorage.setItem('crypto-snake-hiscore', String(hiscore));
+        hiEl.textContent = hiscore;
+      }
+      
+      ovDesc.innerHTML = `
+        ${reason}<br><br>
+        <strong>Poeng: ${score}</strong><br>
+        <strong>Highscore: ${hiscore}</strong>
+      `;
+      btnStart.textContent = 'Spill igjen';
+    }
+
+    function start(){
+      overlay.classList.remove('show');
+      resetGame();
+      running = true; 
+      paused = false; 
+      lastTime = performance.now(); 
+      acc = 0;
+      requestAnimationFrame(loop);
+      gridEl.focus();
+    }
+
+    function togglePause(){
+      if(!running) return;
+      paused = !paused;
+      btnPause.textContent = paused ? 'Fortsett' : 'Pause';
+      if(!paused) gridEl.focus();
+    }
+
+    // ========== CONTROLS ==========
+    function setDirection(nx, ny){
+      if((nx === -dir.x && ny === 0) || (ny === -dir.y && nx === 0)) return;
+      nextDir = {x:nx, y:ny};
+    }
+
+    window.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      if(k==='arrowup' || k==='w'){ setDirection(0,-1); e.preventDefault(); }
+      else if(k==='arrowdown' || k==='s'){ setDirection(0,1); e.preventDefault(); }
+      else if(k==='arrowleft' || k==='a'){ setDirection(-1,0); e.preventDefault(); }
+      else if(k==='arrowright' || k==='d'){ setDirection(1,0); e.preventDefault(); }
+      else if(k===' '){ e.preventDefault(); togglePause(); }
+      else if(k==='r'){ e.preventDefault(); start(); }
+    });
+
+    btnStart.addEventListener('click', start);
+    btnClose.addEventListener('click', () => overlay.classList.remove('show'));
+    btnPause.addEventListener('click', togglePause);
+    btnRestart.addEventListener('click', start);
+
+    // Mobile swipe
+    let touchStart = null;
+    gridEl.addEventListener('touchstart', (e) => {
+      const t = e.changedTouches[0];
+      touchStart = {x:t.clientX, y:t.clientY};
+    }, {passive:true});
     
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
-    <script type="module" src="wallet.js"></script>
-    <script src="game.js"></script>
+    gridEl.addEventListener('touchend', (e) => {
+      if(!touchStart) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - touchStart.x;
+      const dy = t.clientY - touchStart.y;
+      const ax = Math.abs(dx), ay = Math.abs(dy);
+      if(Math.max(ax,ay) < 30) return;
+      if(ax > ay){
+        setDirection(dx>0 ? 1 : -1, 0);
+      } else {
+        setDirection(0, dy>0 ? 1 : -1);
+      }
+      touchStart = null;
+    }, {passive:true});
+
+    // Show overlay on load
+    overlay.classList.add('show');
+  </script>
 </body>
 </html>
