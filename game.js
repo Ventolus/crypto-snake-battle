@@ -3,6 +3,8 @@ const ctx = canvas.getContext('2d');
 const startBtn = document.getElementById('startBtn');
 const pauseBtn = document.getElementById('pauseBtn');
 const resetBtn = document.getElementById('resetBtn');
+const claimBtn = document.getElementById('claimBtn');
+const claimSection = document.getElementById('claimSection');
 
 const gridSize = 20;
 const tileCount = canvas.width / gridSize;
@@ -10,6 +12,8 @@ const tileCount = canvas.width / gridSize;
 let gameRunning = false;
 let gamePaused = false;
 let gameLoop;
+let gameEnded = false;
+let winningPlayer = null;
 
 // Crypto coin types with values
 const cryptoCoins = [
@@ -174,6 +178,8 @@ function updateScores() {
 
 function gameOver(winner) {
     gameRunning = false;
+    gameEnded = true;
+    winningPlayer = winner;
     clearInterval(gameLoop);
     
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
@@ -191,8 +197,33 @@ function gameOver(winner) {
         ctx.fillText('Draw!', canvas.width / 2, canvas.height / 2 + 20);
     }
     
-    ctx.font = '20px Arial';
-    ctx.fillText('Press Reset to play again', canvas.width / 2, canvas.height / 2 + 60);
+    // Show claim section
+    showClaimSection();
+}
+
+function showClaimSection() {
+    // Determine final score (winner's score or highest score)
+    let finalScore = 0;
+    if (winningPlayer === 'Player 1') {
+        finalScore = player1.score;
+    } else if (winningPlayer === 'Player 2') {
+        finalScore = player2.score;
+    } else {
+        // Draw - use highest score
+        finalScore = Math.max(player1.score, player2.score);
+    }
+    
+    // Calculate estimated reward (same formula as backend)
+    const estimatedReward = Math.floor((finalScore * 1.0) / 100);
+    
+    // Update UI
+    document.getElementById('finalScore').textContent = finalScore;
+    document.getElementById('estimatedReward').textContent = estimatedReward;
+    
+    // Show claim section
+    if (claimSection) {
+        claimSection.style.display = 'block';
+    }
 }
 
 function draw() {
@@ -242,6 +273,8 @@ function update() {
 function resetGame() {
     gameRunning = false;
     gamePaused = false;
+    gameEnded = false;
+    winningPlayer = null;
     clearInterval(gameLoop);
     
     player1.snake = [{ x: 10, y: 10 }];
@@ -259,14 +292,25 @@ function resetGame() {
     updateScores();
     generateFood();
     draw();
+    
+    // Hide claim section
+    if (claimSection) {
+        claimSection.style.display = 'none';
+    }
 }
 
 startBtn.addEventListener('click', () => {
     if (!gameRunning) {
         gameRunning = true;
         gamePaused = false;
+        gameEnded = false;
         gameLoop = setInterval(update, 100);
         startBtn.textContent = 'Running...';
+        
+        // Hide claim section if visible
+        if (claimSection) {
+            claimSection.style.display = 'none';
+        }
     }
 });
 
@@ -280,6 +324,56 @@ resetBtn.addEventListener('click', () => {
     startBtn.textContent = 'Start Game';
     pauseBtn.textContent = 'Pause';
 });
+
+// Claim button handler
+if (claimBtn) {
+    claimBtn.addEventListener('click', async () => {
+        if (!window.cryptoSnake || !window.cryptoSnake.isConnected()) {
+            alert('Please connect your wallet first!');
+            return;
+        }
+        
+        // Get final score
+        let finalScore = 0;
+        if (winningPlayer === 'Player 1') {
+            finalScore = player1.score;
+        } else if (winningPlayer === 'Player 2') {
+            finalScore = player2.score;
+        } else {
+            finalScore = Math.max(player1.score, player2.score);
+        }
+        
+        if (finalScore === 0) {
+            alert('Score is too low to claim rewards!');
+            return;
+        }
+        
+        // Disable button during claim
+        claimBtn.disabled = true;
+        claimBtn.textContent = 'Claiming...';
+        
+        try {
+            // Call wallet function to submit and claim
+            const success = await window.cryptoSnake.submitScoreAndClaim(finalScore);
+            
+            if (success) {
+                // Hide claim section after successful claim
+                claimSection.style.display = 'none';
+                
+                // Reset game
+                resetGame();
+                startBtn.textContent = 'Start Game';
+                pauseBtn.textContent = 'Pause';
+            }
+        } catch (error) {
+            console.error('Claim error:', error);
+        } finally {
+            // Re-enable button
+            claimBtn.disabled = false;
+            claimBtn.textContent = 'Submit Score & Claim Rewards';
+        }
+    });
+}
 
 // Initial draw
 resetGame();
