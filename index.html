@@ -18,8 +18,12 @@
         
         <div class="wallet-info" id="walletInfo" style="display: none;">
             <p>Connected: <span id="walletAddress"></span></p>
-            <p>Network: <span id="networkName">Base</span></p>
+            <p>Network: <span id="networkName">Base Sepolia</span></p>
+            <p>$SNAKE Balance: <span id="snakeBalance">0</span> | NFTs: <span id="nftBalance">0</span></p>
+            <p>Daily Allowance: <span id="dailyAllowance">2000</span> SNAKE remaining</p>
         </div>
+        
+        <div id="statusMessage" class="status-message" style="display: none;"></div>
         
         <div class="game-info">
             <div class="player-info player1">
@@ -42,6 +46,13 @@
             <button id="resetBtn" class="btn btn-reset">Reset</button>
         </div>
         
+        <div class="claim-section" id="claimSection" style="display: none;">
+            <h3>🎉 Game Over!</h3>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <p>Estimated Reward: <span id="estimatedReward">0</span> SNAKE</p>
+            <button id="claimBtn" class="btn btn-claim">Submit Score & Claim Rewards</button>
+        </div>
+        
         <div class="instructions">
             <h3>📖 How to Play:</h3>
             <p><strong>Player 1:</strong> W (up), A (left), S (down), D (right)</p>
@@ -49,6 +60,7 @@
             <p>🪙 Collect crypto coins to grow and earn points!</p>
             <p>💎 Special coins are worth more!</p>
             <p>⚠️ Don't hit walls, yourself, or the other player!</p>
+            <p>💰 <strong>Submit your score after game to earn $SNAKE tokens!</strong></p>
         </div>
         
         <div class="crypto-info">
@@ -62,13 +74,23 @@
             </div>
         </div>
         
+        <div class="quick-links">
+            <h3>🔗 Quick Links:</h3>
+            <div class="links">
+                <a href="mint.html" class="link-btn">🎨 Mint Genesis NFT</a>
+                <a href="leaderboard.html" class="link-btn">🏆 Leaderboard</a>
+                <a href="https://github.com/Ventolus/crypto-snake-battle" target="_blank" class="link-btn">💻 GitHub</a>
+            </div>
+        </div>
+        
         <footer>
             <p>Built on <strong>Base Network</strong> 🔵 | Open Source on <a href="https://github.com/Ventolus/crypto-snake-battle" target="_blank">GitHub</a></p>
+            <p>Made with ❤️ using <a href="https://bhindi.io" target="_blank">Bhindi</a></p>
         </footer>
     </div>
     
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
-    <script src="wallet.js"></script>
+    <script type="module" src="wallet.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
