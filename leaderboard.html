@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | Crypto Snake Battle</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .leaderboard-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .leaderboard-table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .leaderboard-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .leaderboard-table th {
+            background: linear-gradient(135deg, #0052FF 0%, #0066FF 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .leaderboard-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .leaderboard-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .rank {
+            font-weight: bold;
+            color: #0052FF;
+        }
+        
+        .rank-1 { color: #FFD700; }
+        .rank-2 { color: #C0C0C0; }
+        .rank-3 { color: #CD7F32; }
+        
+        .wallet-address {
+            font-family: monospace;
+            color: #666;
+        }
+        
+        .score {
+            font-weight: bold;
+            color: #10b981;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #ef4444;
+        }
+        
+        .refresh-btn {
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="base-banner">
+        <span>🏆 Leaderboard</span>
+        <a href="index.html" class="wallet-btn">Back to Game</a>
+    </div>
+    
+    <div class="container leaderboard-container">
+        <h1>🏆 Top Players</h1>
+        <p class="subtitle">Compete for the highest scores!</p>
+        
+        <div class="refresh-btn">
+            <button id="refreshBtn" class="btn btn-start">Refresh Leaderboard</button>
+        </div>
+        
+        <div id="leaderboardContent" class="loading">
+            Loading leaderboard...
+        </div>
+        
+        <div class="quick-links" style="margin-top: 30px;">
+            <h3>🔗 Quick Links:</h3>
+            <div class="links">
+                <a href="index.html" class="link-btn">🎮 Play Game</a>
+                <a href="mint.html" class="link-btn">🎨 Mint NFT</a>
+                <a href="https://github.com/Ventolus/crypto-snake-battle" target="_blank" class="link-btn">💻 GitHub</a>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { CONFIG } from './wallet.js';
+        
+        async function loadLeaderboard() {
+            const content = document.getElementById('leaderboardContent');
+            content.innerHTML = '<div class="loading">Loading leaderboard...</div>';
+            
+            try {
+                const response = await fetch(`${CONFIG.backendBaseUrl}/api/leaderboard/top?limit=100`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load leaderboard');
+                }
+                
+                const data = await response.json();
+                
+                if (!data.leaderboard || data.leaderboard.length === 0) {
+                    content.innerHTML = '<div class="error">No scores yet. Be the first to play!</div>';
+                    return;
+                }
+                
+                // Build table
+                let html = `
+                    <div class="leaderboard-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Wallet</th>
+                                    <th>Score</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                data.leaderboard.forEach((entry, index) => {
+                    const rank = index + 1;
+                    const rankClass = rank <= 3 ? `rank-${rank}` : 'rank';
+                    const wallet = entry.wallet;
+                    const shortWallet = `${wallet.slice(0, 6)}...${wallet.slice(-4)}`;
+                    const date = new Date(entry.createdAt).toLocaleDateString();
+                    
+                    html += `
+                        <tr>
+                            <td class="${rankClass}">#${rank}</td>
+                            <td class="wallet-address">${shortWallet}</td>
+                            <td class="score">${entry.score.toLocaleString()}</td>
+                            <td>${date}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                content.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                content.innerHTML = '<div class="error">Failed to load leaderboard. Please try again later.</div>';
+            }
+        }
+        
+        // Load on page load
+        loadLeaderboard();
+        
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', loadLeaderboard);
+    </script>
+</body>
+</html>
