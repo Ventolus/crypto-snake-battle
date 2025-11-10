@@ -89,6 +89,29 @@ h1 {
     font-weight: bold;
 }
 
+.status-message {
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.status-message.info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+}
+
+.status-message.success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.status-message.error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
 .game-info {
     display: flex;
     justify-content: space-around;
@@ -159,6 +182,12 @@ h1 {
     transform: translateY(0);
 }
 
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .btn-start {
     background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 }
@@ -169,6 +198,35 @@ h1 {
 
 .btn-reset {
     background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.btn-claim {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-size: 18px;
+    padding: 15px 40px;
+}
+
+.claim-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+}
+
+.claim-section h3 {
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+
+.claim-section p {
+    margin: 10px 0;
+    font-size: 1.2em;
+}
+
+.claim-section button {
+    margin-top: 15px;
 }
 
 .instructions {
@@ -228,6 +286,42 @@ h1 {
 .bnb { color: #f3ba2f; }
 .doge { color: #c2a633; }
 
+.quick-links {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.quick-links h3 {
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.links {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.link-btn {
+    background: linear-gradient(135deg, #0052FF 0%, #0066FF 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s;
+    display: inline-block;
+}
+
+.link-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 82, 255, 0.3);
+}
+
 footer {
     margin-top: 30px;
     text-align: center;
@@ -266,5 +360,14 @@ footer a:hover {
     
     .btn {
         width: 100%;
+    }
+    
+    .links {
+        flex-direction: column;
+    }
+    
+    .link-btn {
+        width: 100%;
+        text-align: center;
     }
 }
