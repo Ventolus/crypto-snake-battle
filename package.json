@@ -1,0 +1,36 @@
+{
+  "name": "crypto-snake-battle",
+  "version": "1.0.0",
+  "description": "Multiplayer Snake game with crypto rewards on Base Network",
+  "private": true,
+  "workspaces": [
+    "contracts",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "install:all": "pnpm install && cd contracts && pnpm install && cd ../backend && pnpm install",
+    "build:contracts": "cd contracts && pnpm hardhat compile",
+    "test:contracts": "cd contracts && pnpm hardhat test",
+    "deploy:sepolia": "cd contracts && pnpm hardhat run scripts/deploy_all.ts --network baseSepolia",
+    "verify:contracts": "cd contracts && pnpm hardhat run scripts/verify.ts --network baseSepolia",
+    "dev:backend": "cd backend && pnpm dev",
+    "build:backend": "cd backend && pnpm build",
+    "start:backend": "cd backend && pnpm start"
+  },
+  "keywords": [
+    "web3",
+    "base",
+    "snake",
+    "game",
+    "nft",
+    "erc20",
+    "play-to-earn"
+  ],
+  "author": "Ventolus",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ventolus/crypto-snake-battle.git"
+  }
+}
