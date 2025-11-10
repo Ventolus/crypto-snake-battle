@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mint Genesis NFT | Crypto Snake Battle</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .mint-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .nft-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .nft-preview h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .nft-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .mint-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mint-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .amount-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .amount-btn {
+            padding: 15px 30px;
+            border: 2px solid #0052FF;
+            background: white;
+            color: #0052FF;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .amount-btn:hover {
+            background: #0052FF;
+            color: white;
+        }
+        
+        .amount-btn.selected {
+            background: #0052FF;
+            color: white;
+        }
+        
+        .mint-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .mint-info p {
+            margin: 8px 0;
+            color: #666;
+        }
+        
+        .mint-info strong {
+            color: #333;
+        }
+        
+        .mint-btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .progress-bar {
+            background: #e5e7eb;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #0052FF 0%, #0066FF 100%);
+            height: 100%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="base-banner">
+        <span>🎨 Mint Genesis NFT</span>
+        <button id="connectWallet" class="wallet-btn">Connect Wallet</button>
+    </div>
+    
+    <div class="container mint-container">
+        <h1>🎨 Crypto Snakes Genesis</h1>
+        <p class="subtitle">Exclusive NFT Collection on Base Network</p>
+        
+        <div class="nft-preview">
+            <h2>🐍 Genesis Collection</h2>
+            <p>Limited to 1,000 unique NFTs</p>
+            
+            <div class="nft-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Minted</div>
+                    <div class="stat-value" id="mintedCount">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Remaining</div>
+                    <div class="stat-value" id="remainingCount">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Mint Price</div>
+                    <div class="stat-value" id="mintPrice">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Your NFTs</div>
+                    <div class="stat-value" id="userNFTs">-</div>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div class="mint-section">
+            <h3>Select Amount to Mint</h3>
+            
+            <div class="amount-selector">
+                <button class="amount-btn selected" data-amount="1">1 NFT</button>
+                <button class="amount-btn" data-amount="2">2 NFTs</button>
+            </div>
+            
+            <div class="mint-info">
+                <p><strong>Selected:</strong> <span id="selectedAmount">1</span> NFT(s)</p>
+                <p><strong>Total Cost:</strong> <span id="totalCost">-</span> ETH</p>
+                <p><strong>Max per wallet:</strong> 2 NFTs</p>
+            </div>
+            
+            <div class="mint-btn-container">
+                <button id="mintBtn" class="btn btn-claim" disabled>Connect Wallet to Mint</button>
+            </div>
+        </div>
+        
+        <div class="instructions" style="margin-top: 30px;">
+            <h3>📖 About Genesis NFTs:</h3>
+            <p>🎨 <strong>Unique Collection:</strong> Only 1,000 Genesis NFTs will ever exist</p>
+            <p>💎 <strong>Exclusive Benefits:</strong> Future utility and perks for holders</p>
+            <p>🔵 <strong>Base Network:</strong> Low gas fees and fast transactions</p>
+            <p>🎮 <strong>Play-to-Earn:</strong> Potential boosts and rewards in-game</p>
+        </div>
+        
+        <div class="quick-links" style="margin-top: 30px;">
+            <h3>🔗 Quick Links:</h3>
+            <div class="links">
+                <a href="index.html" class="link-btn">🎮 Play Game</a>
+                <a href="leaderboard.html" class="link-btn">🏆 Leaderboard</a>
+                <a href="https://github.com/Ventolus/crypto-snake-battle" target="_blank" class="link-btn">💻 GitHub</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <script type="module" src="wallet.js"></script>
+    <script type="module">
+        let selectedAmount = 1;
+        
+        // Amount selector
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedAmount = parseInt(btn.dataset.amount);
+                updateMintInfo();
+            });
+        });
+        
+        // Update mint info
+        async function updateMintInfo() {
+            const nftInfo = await window.cryptoSnake.getNFTInfo();
+            if (!nftInfo) return;
+            
+            document.getElementById('selectedAmount').textContent = selectedAmount;
+            const totalCost = (parseFloat(nftInfo.mintPrice) * selectedAmount).toFixed(4);
+            document.getElementById('totalCost').textContent = totalCost;
+        }
+        
+        // Load NFT info
+        async function loadNFTInfo() {
+            if (!window.cryptoSnake || !window.cryptoSnake.isConnected()) {
+                return;
+            }
+            
+            const nftInfo = await window.cryptoSnake.getNFTInfo();
+            if (!nftInfo) return;
+            
+            document.getElementById('mintedCount').textContent = nftInfo.totalSupply;
+            document.getElementById('remainingCount').textContent = nftInfo.remainingSupply;
+            document.getElementById('mintPrice').textContent = `${nftInfo.mintPrice} ETH`;
+            
+            // Update progress bar
+            const percentage = (parseInt(nftInfo.totalSupply) / parseInt(nftInfo.maxSupply)) * 100;
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+            
+            // Update user NFTs
+            await window.cryptoSnake.loadBalances();
+            
+            updateMintInfo();
+            
+            // Enable mint button
+            const mintBtn = document.getElementById('mintBtn');
+            mintBtn.disabled = false;
+            mintBtn.textContent = 'Mint NFT';
+        }
+        
+        // Mint button
+        document.getElementById('mintBtn').addEventListener('click', async () => {
+            if (!window.cryptoSnake || !window.cryptoSnake.isConnected()) {
+                alert('Please connect your wallet first!');
+                return;
+            }
+            
+            const mintBtn = document.getElementById('mintBtn');
+            mintBtn.disabled = true;
+            mintBtn.textContent = 'Minting...';
+            
+            try {
+                const success = await window.cryptoSnake.mintNFT(selectedAmount);
+                if (success) {
+                    await loadNFTInfo();
+                }
+            } catch (error) {
+                console.error('Mint error:', error);
+            } finally {
+                mintBtn.disabled = false;
+                mintBtn.textContent = 'Mint NFT';
+            }
+        });
+        
+        // Connect wallet button
+        document.getElementById('connectWallet').addEventListener('click', async () => {
+            const connected = await window.cryptoSnake.connectWallet();
+            if (connected) {
+                await loadNFTInfo();
+            }
+        });
+        
+        // Check if already connected
+        window.addEventListener('load', async () => {
+            // Wait for wallet.js to load
+            setTimeout(async () => {
+                if (window.cryptoSnake && window.cryptoSnake.isConnected()) {
+                    await loadNFTInfo();
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
