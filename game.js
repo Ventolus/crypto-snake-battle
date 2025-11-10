@@ -11,9 +11,7 @@ const tileCount = canvas.width / gridSize;
 
 let gameRunning = false;
 let gamePaused = false;
-let gameLoop;
 let gameEnded = false;
-let winningPlayer = null;
 
 // Crypto coin types with values
 const cryptoCoins = [
@@ -24,20 +22,9 @@ const cryptoCoins = [
     { name: 'DOGE', symbol: 'Ð', color: '#c2a633', value: 20 }
 ];
 
-// Player 1 (Pink)
-const player1 = {
-    snake: [{ x: 10, y: 10 }],
-    dx: 0,
-    dy: 0,
-    score: 0,
-    crypto: 0,
-    color: '#ff006e',
-    headColor: '#ff4d94'
-};
-
-// Player 2 (Blue)
-const player2 = {
-    snake: [{ x: 20, y: 20 }],
+// Single player
+const player = {
+    snake: [{ x: 15, y: 15 }],
     dx: 0,
     dy: 0,
     score: 0,
@@ -47,45 +34,47 @@ const player2 = {
 };
 
 let food = {
-    x: 15,
-    y: 15,
+    x: 10,
+    y: 10,
     coin: cryptoCoins[0]
 };
 
+let gameSpeed = 100; // ms per frame
+
 // Keyboard controls
 document.addEventListener('keydown', (e) => {
-    // Player 1 (WASD)
-    if (e.key === 'w' && player1.dy === 0) {
-        player1.dx = 0;
-        player1.dy = -1;
-    } else if (e.key === 's' && player1.dy === 0) {
-        player1.dx = 0;
-        player1.dy = 1;
-    } else if (e.key === 'a' && player1.dx === 0) {
-        player1.dx = -1;
-        player1.dy = 0;
-    } else if (e.key === 'd' && player1.dx === 0) {
-        player1.dx = 1;
-        player1.dy = 0;
+    // Arrow keys
+    if (e.key === 'ArrowUp' && player.dy === 0) {
+        player.dx = 0;
+        player.dy = -1;
+    } else if (e.key === 'ArrowDown' && player.dy === 0) {
+        player.dx = 0;
+        player.dy = 1;
+    } else if (e.key === 'ArrowLeft' && player.dx === 0) {
+        player.dx = -1;
+        player.dy = 0;
+    } else if (e.key === 'ArrowRight' && player.dx === 0) {
+        player.dx = 1;
+        player.dy = 0;
     }
     
-    // Player 2 (Arrow keys)
-    if (e.key === 'ArrowUp' && player2.dy === 0) {
-        player2.dx = 0;
-        player2.dy = -1;
-    } else if (e.key === 'ArrowDown' && player2.dy === 0) {
-        player2.dx = 0;
-        player2.dy = 1;
-    } else if (e.key === 'ArrowLeft' && player2.dx === 0) {
-        player2.dx = -1;
-        player2.dy = 0;
-    } else if (e.key === 'ArrowRight' && player2.dx === 0) {
-        player2.dx = 1;
-        player2.dy = 0;
+    // WASD keys (alternative)
+    if (e.key === 'w' && player.dy === 0) {
+        player.dx = 0;
+        player.dy = -1;
+    } else if (e.key === 's' && player.dy === 0) {
+        player.dx = 0;
+        player.dy = 1;
+    } else if (e.key === 'a' && player.dx === 0) {
+        player.dx = -1;
+        player.dy = 0;
+    } else if (e.key === 'd' && player.dx === 0) {
+        player.dx = 1;
+        player.dy = 0;
     }
 });
 
-function drawSnake(player) {
+function drawSnake() {
     player.snake.forEach((segment, index) => {
         ctx.fillStyle = index === 0 ? player.headColor : player.color;
         ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
@@ -123,7 +112,7 @@ function drawFood() {
     );
 }
 
-function moveSnake(player) {
+function moveSnake() {
     const head = { x: player.snake[0].x + player.dx, y: player.snake[0].y + player.dy };
     player.snake.unshift(head);
     
@@ -131,14 +120,19 @@ function moveSnake(player) {
     if (head.x === food.x && head.y === food.y) {
         player.score += 10;
         player.crypto += food.coin.value;
-        updateScores();
+        updateScore();
         generateFood();
+        
+        // Increase speed slightly as score increases
+        if (player.score % 50 === 0 && gameSpeed > 50) {
+            gameSpeed -= 5;
+        }
     } else {
         player.snake.pop();
     }
 }
 
-function checkCollision(player, otherPlayer) {
+function checkCollision() {
     const head = player.snake[0];
     
     // Wall collision
@@ -153,34 +147,33 @@ function checkCollision(player, otherPlayer) {
         }
     }
     
-    // Other player collision
-    for (let segment of otherPlayer.snake) {
-        if (head.x === segment.x && head.y === segment.y) {
-            return true;
-        }
-    }
-    
     return false;
 }
 
 function generateFood() {
-    food.x = Math.floor(Math.random() * tileCount);
-    food.y = Math.floor(Math.random() * tileCount);
+    let validPosition = false;
+    
+    while (!validPosition) {
+        food.x = Math.floor(Math.random() * tileCount);
+        food.y = Math.floor(Math.random() * tileCount);
+        
+        // Check if food is not on snake
+        validPosition = !player.snake.some(segment => 
+            segment.x === food.x && segment.y === food.y
+        );
+    }
+    
     food.coin = cryptoCoins[Math.floor(Math.random() * cryptoCoins.length)];
 }
 
-function updateScores() {
-    document.getElementById('score1').textContent = player1.score;
-    document.getElementById('crypto1').textContent = player1.crypto;
-    document.getElementById('score2').textContent = player2.score;
-    document.getElementById('crypto2').textContent = player2.crypto;
+function updateScore() {
+    document.getElementById('score').textContent = player.score;
+    document.getElementById('crypto').textContent = player.crypto;
 }
 
-function gameOver(winner) {
+function gameOver() {
     gameRunning = false;
     gameEnded = true;
-    winningPlayer = winner;
-    clearInterval(gameLoop);
     
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -191,27 +184,17 @@ function gameOver(winner) {
     ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2 - 40);
     
     ctx.font = 'bold 30px Arial';
-    if (winner) {
-        ctx.fillText(winner + ' Wins! 🎉', canvas.width / 2, canvas.height / 2 + 20);
-    } else {
-        ctx.fillText('Draw!', canvas.width / 2, canvas.height / 2 + 20);
-    }
+    ctx.fillText(`Score: ${player.score}`, canvas.width / 2, canvas.height / 2 + 20);
+    
+    ctx.font = '20px Arial';
+    ctx.fillText(`Crypto Value: $${player.crypto}`, canvas.width / 2, canvas.height / 2 + 60);
     
     // Show claim section
     showClaimSection();
 }
 
 function showClaimSection() {
-    // Determine final score (winner's score or highest score)
-    let finalScore = 0;
-    if (winningPlayer === 'Player 1') {
-        finalScore = player1.score;
-    } else if (winningPlayer === 'Player 2') {
-        finalScore = player2.score;
-    } else {
-        // Draw - use highest score
-        finalScore = Math.max(player1.score, player2.score);
-    }
+    const finalScore = player.score;
     
     // Calculate estimated reward (same formula as backend)
     const estimatedReward = Math.floor((finalScore * 1.0) / 100);
@@ -246,50 +229,50 @@ function draw() {
     }
     
     drawFood();
-    drawSnake(player1);
-    drawSnake(player2);
+    drawSnake();
 }
 
-function update() {
-    if (!gameRunning || gamePaused) return;
-    
-    moveSnake(player1);
-    moveSnake(player2);
-    
-    const p1Collision = checkCollision(player1, player2);
-    const p2Collision = checkCollision(player2, player1);
-    
-    if (p1Collision && p2Collision) {
-        gameOver(null);
-    } else if (p1Collision) {
-        gameOver('Player 2');
-    } else if (p2Collision) {
-        gameOver('Player 1');
+let lastFrameTime = 0;
+
+function gameLoop(currentTime) {
+    if (!gameRunning || gamePaused) {
+        if (gameRunning) {
+            requestAnimationFrame(gameLoop);
+        }
+        return;
     }
     
-    draw();
+    const deltaTime = currentTime - lastFrameTime;
+    
+    if (deltaTime >= gameSpeed) {
+        lastFrameTime = currentTime;
+        
+        moveSnake();
+        
+        if (checkCollision()) {
+            gameOver();
+            return;
+        }
+        
+        draw();
+    }
+    
+    requestAnimationFrame(gameLoop);
 }
 
 function resetGame() {
     gameRunning = false;
     gamePaused = false;
     gameEnded = false;
-    winningPlayer = null;
-    clearInterval(gameLoop);
     
-    player1.snake = [{ x: 10, y: 10 }];
-    player1.dx = 0;
-    player1.dy = 0;
-    player1.score = 0;
-    player1.crypto = 0;
+    player.snake = [{ x: 15, y: 15 }];
+    player.dx = 0;
+    player.dy = 0;
+    player.score = 0;
+    player.crypto = 0;
+    gameSpeed = 100;
     
-    player2.snake = [{ x: 20, y: 20 }];
-    player2.dx = 0;
-    player2.dy = 0;
-    player2.score = 0;
-    player2.crypto = 0;
-    
-    updateScores();
+    updateScore();
     generateFood();
     draw();
     
@@ -304,7 +287,8 @@ startBtn.addEventListener('click', () => {
         gameRunning = true;
         gamePaused = false;
         gameEnded = false;
-        gameLoop = setInterval(update, 100);
+        lastFrameTime = 0;
+        requestAnimationFrame(gameLoop);
         startBtn.textContent = 'Running...';
         
         // Hide claim section if visible
@@ -315,8 +299,15 @@ startBtn.addEventListener('click', () => {
 });
 
 pauseBtn.addEventListener('click', () => {
-    gamePaused = !gamePaused;
-    pauseBtn.textContent = gamePaused ? 'Resume' : 'Pause';
+    if (gameRunning && !gameEnded) {
+        gamePaused = !gamePaused;
+        pauseBtn.textContent = gamePaused ? 'Resume' : 'Pause';
+        
+        if (!gamePaused) {
+            lastFrameTime = 0;
+            requestAnimationFrame(gameLoop);
+        }
+    }
 });
 
 resetBtn.addEventListener('click', () => {
@@ -333,15 +324,7 @@ if (claimBtn) {
             return;
         }
         
-        // Get final score
-        let finalScore = 0;
-        if (winningPlayer === 'Player 1') {
-            finalScore = player1.score;
-        } else if (winningPlayer === 'Player 2') {
-            finalScore = player2.score;
-        } else {
-            finalScore = Math.max(player1.score, player2.score);
-        }
+        const finalScore = player.score;
         
         if (finalScore === 0) {
             alert('Score is too low to claim rewards!');
