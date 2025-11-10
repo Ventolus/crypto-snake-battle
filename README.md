@@ -1,8 +1,8 @@
 # 🐍💰 Crypto Snake Battle
 
-**Multiplayer Snake Game with Play-to-Earn on Base Network**
+**Play-to-Earn Snake Game on Base Network**
 
-Play the classic Snake game with a crypto twist! Collect Bitcoin, Ethereum, and other crypto coins while battling against a friend. Earn $SNAKE tokens for your high scores and mint exclusive Genesis NFTs.
+Play the classic Snake game with a crypto twist! Collect Bitcoin, Ethereum, and other crypto coins to earn $SNAKE tokens. Mint exclusive Genesis NFTs and compete on the leaderboard.
 
 ## 🎮 Play Now
 
@@ -11,10 +11,11 @@ Play the classic Snake game with a crypto twist! Collect Bitcoin, Ethereum, and 
 ## ✨ Features
 
 ### 🎯 Gameplay
-- **2-Player Battle Mode** - Compete with a friend on the same keyboard
+- **Classic Snake Mechanics** - Smooth, responsive controls
 - **Crypto Coins** - Collect Bitcoin (₿), Ethereum (Ξ), Solana (S), Binance (B), and Dogecoin (Ð)
+- **Progressive Difficulty** - Game speeds up as you score more
 - **Score Tracking** - Track both points and crypto value
-- **Smooth Controls** - Responsive WASD and arrow key controls
+- **Arrow Keys or WASD** - Choose your preferred controls
 
 ### 💰 Play-to-Earn
 - **$SNAKE Token Rewards** - Earn tokens based on your score
@@ -125,8 +126,7 @@ python -m http.server 8000
 ## 🕹️ How to Play
 
 ### Controls
-- **Player 1:** W (up), A (left), S (down), D (right)
-- **Player 2:** Arrow keys
+- **Arrow Keys** or **WASD** - Move your snake
 
 ### Objective
 1. Collect crypto coins to grow your snake
@@ -136,8 +136,9 @@ python -m http.server 8000
    - 🌟 Solana (S) - $40
    - ⭐ Binance (B) - $30
    - 🐕 Dogecoin (Ð) - $20
-3. Avoid hitting walls, yourself, or the other player
-4. Submit your score to earn $SNAKE tokens!
+3. Avoid hitting walls or yourself
+4. Game speeds up as you score more points
+5. Submit your score to earn $SNAKE tokens!
 
 ### Earning Rewards
 1. **Connect Wallet** - Click "Connect Wallet" and approve
@@ -286,7 +287,7 @@ Already deployed! Updates push automatically.
 
 ### ✅ Phase 1 (Current)
 - [x] Core game mechanics
-- [x] 2-player local mode
+- [x] Single-player mode
 - [x] Smart contracts
 - [x] Backend API
 - [x] Wallet integration
@@ -301,7 +302,7 @@ Already deployed! Updates push automatically.
 - [ ] Sound effects
 
 ### 🔮 Phase 3 (Future)
-- [ ] Online multiplayer (Socket.IO)
+- [ ] Multiplayer PVP mode
 - [ ] Tournament system
 - [ ] NFT staking for boosts
 - [ ] Power-ups marketplace
