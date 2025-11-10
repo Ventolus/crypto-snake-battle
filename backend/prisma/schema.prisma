@@ -1,0 +1,53 @@
+// Prisma schema for Crypto Snake Battle backend
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or "sqlite" for local dev
+  url      = env("DATABASE_URL")
+}
+
+model Score {
+  id        String   @id @default(cuid())
+  wallet    String
+  score     Int
+  reward    String   // Store as string to handle BigInt
+  createdAt DateTime @default(now())
+
+  @@index([wallet])
+  @@index([score])
+  @@index([createdAt])
+}
+
+model Nonce {
+  id        String   @id @default(cuid())
+  wallet    String
+  nonce     String
+  usedAt    DateTime @default(now())
+
+  @@unique([wallet, nonce])
+  @@index([wallet])
+}
+
+model DailyReward {
+  id        String   @id @default(cuid())
+  wallet    String
+  day       String   // Format: YYYY-MM-DD
+  total     String   // Store as string to handle BigInt
+  updatedAt DateTime @updatedAt
+
+  @@unique([wallet, day])
+  @@index([wallet])
+  @@index([day])
+}
+
+model GlobalDailyReward {
+  id        String   @id @default(cuid())
+  day       String   @unique // Format: YYYY-MM-DD
+  total     String   // Store as string to handle BigInt
+  updatedAt DateTime @updatedAt
+
+  @@index([day])
+}
